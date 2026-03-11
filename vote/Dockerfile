@@ -1,18 +1,14 @@
-# Using official python runtime base image
-FROM python:2.7-alpine
-
-# Set the application directory
+FROM python:3.12-slim
 WORKDIR /app
 
-# Install our requirements.txt
-ADD requirements.txt /app/requirements.txt
-RUN pip install -r requirements.txt
+# Install deps first (layer cache)
+COPY requirements.txt .
+RUN pip install --no-cache-dir -r requirements.txt
 
-# Copy our code from the current folder to /app inside the container
-ADD . /app
+# Copy source
+COPY . .
 
-# Make port 80 available for links and/or publish
 EXPOSE 80
 
-# Define our command to be run when launching the container
-CMD ["gunicorn", "app:app", "-b", "0.0.0.0:80", "--log-file", "-", "--access-logfile", "-", "--workers", "4", "--keep-alive", "0"]
+# Gunicorn: 4 sync workers, 30s timeout
+CMD ["gunicorn", "--bind", "0.0.0.0:80", "--workers", "4", "--timeout", "30", "app:app"]

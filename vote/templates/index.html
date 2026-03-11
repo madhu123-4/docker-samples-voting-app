@@ -1,49 +1,172 @@
 <!DOCTYPE html>
-<html>
-  <head>
-    <meta charset="utf-8">
-    <title>{{option_a}} vs {{option_b}}!</title>
-    <base href="/index.html">
-    <meta name = "viewport" content = "width=device-width, initial-scale = 1.0">
-    <meta name="keywords" content="docker-compose, docker, stack">
-    <meta name="author" content="Tutum dev team">
-    <link rel='stylesheet' href="{{ url_for('static',filename='stylesheets/style.css') }}" />
-    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.4.0/css/font-awesome.min.css">
-  </head>
-  <body>
-    <div id="content-container">
-      <div id="content-container-center">
-        <h3>{{option_a}} vs {{option_b}}!</h3>
-        <form id="choice" name='form' method="POST" action="/">
-          <button id="a" type="submit" name="vote" class="a" value="a">{{option_a}}</button>
-          <button id="b" type="submit" name="vote" class="b" value="b">{{option_b}}</button>
-        </form>
-        <div id="tip">
-          (Tip: you can change your vote)
-        </div>
-        <div id="hostname">
-          Processed by container ID {{hostname}}
-        </div>
-      </div>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>{{ option_a }} vs {{ option_b }}</title>
+  <meta name="description" content="Cast your vote: {{ option_a }} vs {{ option_b }}" />
+
+  <!-- Stylesheet -->
+  <link rel="stylesheet" href="{{ url_for('static', filename='stylesheets/style.css') }}" />
+
+  <!-- Font Awesome for check icon -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" crossorigin="anonymous" />
+</head>
+<body>
+<div class="page">
+
+  <!-- ── Header ─────────────────────────────────────────────────────── -->
+  <header>
+    <div class="logo">
+      <span>{{ option_a[:1] }}</span>vs<span class="b">{{ option_b[:1] }}</span>
+      &nbsp;VOTEPULSE
     </div>
-    <script src="http://code.jquery.com/jquery-latest.min.js" type="text/javascript"></script>
-    <script src="//cdnjs.cloudflare.com/ajax/libs/jquery-cookie/1.4.1/jquery.cookie.js"></script>
+    <div class="header-meta">
+      <span id="live-total">{{ total }} vote{{ 's' if total != 1 else '' }}</span>
+      &nbsp;·&nbsp; Container&nbsp;<code>{{ hostname[:12] }}</code>
+    </div>
+  </header>
 
-    {% if vote %}
-    <script>
-      var vote = "{{vote}}";
+  <!-- ── Split vote arena ───────────────────────────────────────────── -->
+  <main>
 
-      if(vote == "a"){
-        $(".a").prop('disabled', true);
-        $(".a").html('{{option_a}} <i class="fa fa-check-circle"></i>');
-        $(".b").css('opacity','0.5');
+    <!-- Option A -->
+    <form method="POST" action="/">
+      <button
+        type="submit"
+        name="vote"
+        value="a"
+        class="vote-panel a{% if vote == 'a' %} voted-this{% elif vote == 'b' %} voted-other{% endif %}"
+        aria-label="Vote for {{ option_a }}"
+        {% if vote == 'b' %}disabled{% endif %}
+      >
+        <span class="panel-icon" aria-hidden="true">🐱</span>
+
+        <span class="panel-name">{{ option_a }}</span>
+
+        <span class="panel-sub">Independent, mysterious,<br/>forever judging you.</span>
+
+        <span class="panel-cta">
+          {% if vote == 'a' %}
+            <i class="fa-solid fa-circle-check"></i> Voted
+          {% else %}
+            Vote&nbsp;<i class="fa-solid fa-arrow-right"></i>
+          {% endif %}
+        </span>
+
+        <div class="panel-stat">
+          <span class="stat-number" id="count-a">{{ tallies.a }}</span>
+          <span>votes</span>
+        </div>
+      </button>
+    </form>
+
+    <!-- Option B -->
+    <form method="POST" action="/">
+      <button
+        type="submit"
+        name="vote"
+        value="b"
+        class="vote-panel b{% if vote == 'b' %} voted-this{% elif vote == 'a' %} voted-other{% endif %}"
+        aria-label="Vote for {{ option_b }}"
+        {% if vote == 'a' %}disabled{% endif %}
+      >
+        <span class="panel-icon" aria-hidden="true">🐶</span>
+
+        <span class="panel-name">{{ option_b }}</span>
+
+        <span class="panel-sub">Loyal, loud, ready to<br/>ruin your couch for love.</span>
+
+        <span class="panel-cta">
+          {% if vote == 'b' %}
+            <i class="fa-solid fa-circle-check"></i> Voted
+          {% else %}
+            Vote&nbsp;<i class="fa-solid fa-arrow-right"></i>
+          {% endif %}
+        </span>
+
+        <div class="panel-stat">
+          <span class="stat-number" id="count-b">{{ tallies.b }}</span>
+          <span>votes</span>
+        </div>
+      </button>
+    </form>
+
+    <!-- Progress bar strip -->
+    <div class="progress-strip" role="meter" aria-label="Vote distribution">
+      <div
+        class="progress-a"
+        id="prog-a"
+        style="width: {{ (tallies.a / total * 100) | round(1) if total else 50 }}%"
+      ></div>
+      <div class="progress-b" id="prog-b"></div>
+    </div>
+
+  </main>
+
+  <!-- ── Footer ─────────────────────────────────────────────────────── -->
+  <footer>
+    <span>
+      {% if vote %}
+        ✓ You voted for <strong>{{ option_a if vote == 'a' else option_b }}</strong>.
+        You can change your vote anytime.
+      {% else %}
+        Click a panel to cast your vote.
+      {% endif %}
+    </span>
+    <span class="footer-tag">Flask · Redis · PostgreSQL</span>
+  </footer>
+
+</div><!-- .page -->
+
+<!-- ── Error / success banner (flash) ─────────────────────────────────── -->
+{% if error %}
+<div class="banner error" role="alert">⚠ {{ error }}</div>
+{% endif %}
+
+<!-- ── Live polling script ─────────────────────────────────────────────── -->
+<script>
+  const countA   = document.getElementById('count-a');
+  const countB   = document.getElementById('count-b');
+  const progA    = document.getElementById('prog-a');
+  const liveTotal = document.getElementById('live-total');
+
+  function animateBump(el) {
+    el.classList.remove('bump');
+    void el.offsetWidth;          // force reflow to restart animation
+    el.classList.add('bump');
+  }
+
+  async function poll() {
+    try {
+      const res  = await fetch('/stats');
+      const data = await res.json();
+
+      // Animate counter if value changed
+      if (parseInt(countA.textContent) !== data.a) {
+        countA.textContent = data.a;
+        animateBump(countA);
       }
-      if(vote == "b"){
-        $(".b").prop('disabled', true);
-        $(".b").html('{{option_b}} <i class="fa fa-check-circle"></i>');
-        $(".a").css('opacity','0.5');
+      if (parseInt(countB.textContent) !== data.b) {
+        countB.textContent = data.b;
+        animateBump(countB);
       }
-    </script>
-    {% endif %}
-  </body>
+
+      // Update progress bar
+      const pct = data.total > 0 ? data.pct_a : 50;
+      progA.style.width = pct + '%';
+
+      // Update header total
+      liveTotal.textContent = data.total + ' vote' + (data.total !== 1 ? 's' : '');
+
+    } catch (e) {
+      // Silently ignore if backend unreachable
+    }
+  }
+
+  // Poll every 3 seconds
+  setInterval(poll, 3000);
+</script>
+
+</body>
 </html>
