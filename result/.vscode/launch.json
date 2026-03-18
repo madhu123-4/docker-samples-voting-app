@@ -1,18 +1,22 @@
 {
-    "version": "0.2.0",
-    "configurations": [
-        {
-            "name": "Attach",
-            "type": "node",
-            "request": "attach",
-            "port": 5858,
-            "address": "localhost",
-            "restart": true,
-            "sourceMaps": false,
-            "outDir": null,
-            "localRoot": "${workspaceRoot}",
-            "remoteRoot": "/app",
-            "timeout": 10000
-        }
-    ]
+  // .vscode/launch.json
+  // What changed: Node 5 used --debug port 5858 (legacy V8 debugger protocol).
+  // Node 8+ switched to --inspect (Chrome DevTools Protocol) on port 9229.
+  // The old port 5858 + type "node" with attach will NOT work on Node 22.
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "name": "Attach to Docker (Node 22)",
+      "type": "node",
+      "request": "attach",
+      "port": 9229,              // Node 22 inspector port (was 5858 for Node 5)
+      "address": "localhost",
+      "restart": true,
+      "sourceMaps": false,
+      "localRoot": "${workspaceFolder}",
+      "remoteRoot": "/app",
+      "timeout": 10000,
+      "skipFiles": ["<node_internals>/**"]
+    }
+  ]
 }

@@ -1,70 +1,127 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-  xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0
+                             http://maven.apache.org/xsd/maven-4.0.0.xsd">
   <modelVersion>4.0.0</modelVersion>
 
   <groupId>worker</groupId>
   <artifactId>worker</artifactId>
   <version>1.0-SNAPSHOT</version>
 
+  <properties>
+    <!--
+      Java 21 LTS — supported until 2029.
+      Original targeted Java 1.7 (source/target in compiler plugin).
+      Java 7 reached EOL in 2015 and lacks try-with-resources improvements,
+      lambdas, records, and modern concurrency APIs.
+    -->
+    <maven.compiler.release>21</maven.compiler.release>
+
+    <!-- Reproducible builds: all plugins use this encoding -->
+    <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+  </properties>
 
   <dependencies>
+
+    <!--
+      org.json 20240303  (was: 20140107 — a 10-year-old release)
+      The 2014 version has no module-info, incomplete RFC 7159 compliance,
+      and known parsing edge cases fixed in later releases.
+    -->
     <dependency>
       <groupId>org.json</groupId>
       <artifactId>json</artifactId>
-      <version>20140107</version>
+      <version>20240303</version>
     </dependency>
 
+    <!--
+      Jedis 5.1.2  (was: 2.7.2 — released in 2015)
+      Jedis 3+ rewrote connection pooling. Jedis 5 adds:
+        - proper RESP3 protocol support
+        - virtual-thread friendly (Java 21 Project Loom)
+        - `blpop` with correct timeout semantics
+      Version 2.7.2 has a known bug where blpop timeout=0 can
+      spin-loop on some Redis server versions.
+    -->
     <dependency>
-        <groupId>redis.clients</groupId>
-        <artifactId>jedis</artifactId>
-        <version>2.7.2</version>
-        <type>jar</type>
-        <scope>compile</scope>
+      <groupId>redis.clients</groupId>
+      <artifactId>jedis</artifactId>
+      <version>5.1.2</version>
     </dependency>
 
+    <!--
+      PostgreSQL JDBC 42.7.3  (was: 9.4-1200-jdbc41 — released in 2015)
+      The 9.4 driver:
+        - Does not support JDBC 4.2 features (batch upsert, OffsetDateTime)
+        - Has known SSL/TLS vulnerabilities (CVE-2016-7048)
+        - Is not compatible with PostgreSQL 13+ logical replication features
+      42.x is the current stable series, maintained by the PostgreSQL project.
+    -->
     <dependency>
-        <groupId>org.postgresql</groupId>
-        <artifactId>postgresql</artifactId>
-        <version>9.4-1200-jdbc41</version>
+      <groupId>org.postgresql</groupId>
+      <artifactId>postgresql</artifactId>
+      <version>42.7.3</version>
     </dependency>
+
   </dependencies>
 
   <build>
     <plugins>
+
+      <!--
+        maven-compiler-plugin 3.13.0  (was: 3.1 from 2013)
+        3.1 does not understand <release> — it only supports deprecated
+        <source>/<target> flags which allow cross-compilation mismatches.
+        <release> in 3.6+ sets source, target, AND bootstrap classpath
+        together, preventing "compiled with newer API than target" bugs.
+      -->
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-compiler-plugin</artifactId>
+        <version>3.13.0</version>
+        <!-- release is inherited from properties above — no explicit config needed -->
+      </plugin>
+
+      <!--
+        maven-jar-plugin 3.4.1  (was: 2.4 from 2013)
+        Sets the Main-Class manifest entry so the jar is runnable.
+        Version 2.4 has a bug with reproducible builds and module-info.
+      -->
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-jar-plugin</artifactId>
-        <version>2.4</version>
+        <version>3.4.1</version>
         <configuration>
           <finalName>worker</finalName>
           <archive>
             <manifest>
-              <addClasspath>true</addClasspath>
               <mainClass>worker.Worker</mainClass>
-              <classpathPrefix>dependency-jars/</classpathPrefix>
             </manifest>
           </archive>
         </configuration>
       </plugin>
-      <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-compiler-plugin</artifactId>
-        <version>3.1</version>
-        <configuration>
-          <source>1.7</source>
-          <target>1.7</target>
-        </configuration>
-      </plugin>
+
+      <!--
+        maven-assembly-plugin 3.7.1  (was: 2.x with deprecated 'attached' goal)
+        The original used <goal>attached</goal> which was removed in plugin 3.x.
+        The correct goal is 'single'. This produces:
+          target/worker-jar-with-dependencies.jar
+        which bundles Jedis, PostgreSQL JDBC, and org.json into one fat jar
+        so the runtime image needs no classpath setup.
+      -->
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-assembly-plugin</artifactId>
+        <version>3.7.1</version>
         <executions>
           <execution>
-            <goals>
-              <goal>attached</goal>
-            </goals>
+            <id>make-fat-jar</id>
             <phase>package</phase>
+            <goals>
+              <!-- 'single' replaced the deprecated 'attached' goal -->
+              <goal>single</goal>
+            </goals>
             <configuration>
               <finalName>worker</finalName>
               <descriptorRefs>
@@ -79,6 +136,8 @@
           </execution>
         </executions>
       </plugin>
+
     </plugins>
   </build>
+
 </project>

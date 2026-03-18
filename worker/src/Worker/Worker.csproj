@@ -1,19 +1,47 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>netcoreapp1.0</TargetFramework>
+    <!-- .NET 8 LTS — supported until November 2026 -->
+    <!-- Was: netcoreapp1.0 (EOL since 2019) -->
+    <TargetFramework>net8.0</TargetFramework>
+
+    <!-- Treat all warnings as errors keeps code quality high -->
     <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+
     <AssemblyName>Worker</AssemblyName>
     <OutputType>Exe</OutputType>
     <PackageId>Worker</PackageId>
+
+    <!-- Server GC: optimized for throughput on server workloads (kept from original) -->
     <ServerGarbageCollection>true</ServerGarbageCollection>
-    <RuntimeFrameworkVersion>1.1.1</RuntimeFrameworkVersion>
+
+    <!-- Enable nullable reference types — catches null bugs at compile time -->
+    <!-- Was: not enabled (nullable bugs only surfaced at runtime) -->
+    <Nullable>enable</Nullable>
+
+    <!-- Enforce latest C# for async/await, records, pattern matching -->
+    <LangVersion>latest</LangVersion>
+
+    <!-- Embed debug symbols in the DLL (no separate .pdb needed in Docker) -->
+    <DebugType>embedded</DebugType>
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="StackExchange.Redis" Version="1.1.604-alpha" />
-    <PackageReference Include="Npgsql" Version="3.1.3" />
-    <PackageReference Include="Newtonsoft.Json" Version="9.0.1" />
+    <!-- StackExchange.Redis 2.7.x — stable, async-first, thread-safe -->
+    <!-- Was: 1.1.604-alpha (8-year-old alpha, async broken, known deadlocks) -->
+    <PackageReference Include="StackExchange.Redis"   Version="2.7.33"  />
+
+    <!-- Npgsql 8.x — async-native PostgreSQL driver for .NET 8 -->
+    <!-- Was: 3.1.3 (no async support, incompatible with .NET 8) -->
+    <PackageReference Include="Npgsql"                Version="8.0.3"   />
+
+    <!-- System.Text.Json replaces Newtonsoft for modern .NET (built-in, faster) -->
+    <!-- Was: Newtonsoft.Json 9.0.1 (2016, no longer needed on .NET 8) -->
+
+    <!-- Microsoft.Extensions.Logging: structured console logging with log levels -->
+    <!-- Was: raw Console.WriteLine/Console.Error.WriteLine scattered everywhere -->
+    <PackageReference Include="Microsoft.Extensions.Logging"              Version="8.0.0" />
+    <PackageReference Include="Microsoft.Extensions.Logging.Console"      Version="8.0.0" />
   </ItemGroup>
 
 </Project>

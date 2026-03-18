@@ -1,43 +1,63 @@
 <!DOCTYPE html>
-<html ng-app="catsvsdogs">
-  <head>
-    <meta charset="utf-8">
-    <title>Cats vs Dogs -- Result</title>
-    <base href="/index.html">
-    <meta name = "viewport" content = "width=device-width, initial-scale = 1.0">
-    <meta name="keywords" content="docker-compose, docker, stack">
-    <meta name="author" content="Docker">
-    <link rel='stylesheet' href='/stylesheets/style.css' />
-  </head>
-  <body ng-controller="statsCtrl" >
-     <div id="background-stats">
-       <div id="background-stats-1">
-       </div><!--
-      --><div id="background-stats-2">
-      </div>
-    </div>
-    <div id="content-container">
-      <div id="content-container-center">
-        <div id="choice">
-          <div class="choice cats">
-            <div class="label">Cats</div>
-            <div class="stat">{{aPercent | number:1}}%</div>
-          </div>
-          <div class="divider"></div>
-          <div class="choice dogs">
-            <div class="label">Dogs</div>
-            <div class="stat">{{bPercent | number:1}}%</div>
-          </div>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <title>Cats vs Dogs — Live Results</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link rel="stylesheet" href="/stylesheets/style.css" />
+</head>
+
+<!--
+  WHAT CHANGED AND WHY:
+
+  1. REMOVED ng-app / ng-controller / {{ }} / ng-if  (AngularJS 1.x)
+     AngularJS 1.x reached End of Life on 31 Dec 2021 — no security patches.
+     It was used only for simple data binding that 10 lines of vanilla JS replaces.
+
+  2. REMOVED <script src="socket.io.js">  (vendored v1.x client)
+     That 6,000-line file is socket.io-client 1.x — incompatible with socket.io 4
+     server. The handshake protocol changed entirely between v1 and v4.
+     Socket.IO 4 auto-serves its own matching client at /socket.io/socket.io.js.
+     Loading from the server guarantees client + server are always the same version.
+
+  3. REMOVED AngularJS CDN script tag
+     No longer needed. Vanilla JS handles all updates.
+
+  4. ADDED id attributes to the stat divs
+     So app.js can update them with getElementById() instead of Angular bindings.
+-->
+
+<body>
+  <div id="background-stats">
+    <div id="background-stats-1"></div><!--
+ --><div id="background-stats-2"></div>
+  </div>
+
+  <div id="content-container">
+    <div id="content-container-center">
+      <div id="choice">
+        <div class="choice cats">
+          <div class="label">Cats</div>
+          <div class="stat" id="pct-a">50.0%</div>
+        </div>
+        <div class="divider"></div>
+        <div class="choice dogs">
+          <div class="label">Dogs</div>
+          <div class="stat" id="pct-b">50.0%</div>
         </div>
       </div>
     </div>
-    <div id="result">
-      <span ng-if="total == 0">No votes yet</span>
-      <span ng-if="total == 1">{{total}} vote</span>
-      <span ng-if="total >= 2">{{total}} votes</span>
-    </div>
-    <script src="socket.io.js"></script>
-    <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.4.5/angular.min.js"></script>
-    <script src="app.js"></script>
-  </body>
+  </div>
+
+  <div id="result">
+    <span id="total-label">No votes yet</span>
+  </div>
+
+  <!--
+    Socket.IO 4 serves its own client bundle at this exact path automatically.
+    Never load a vendored socket.io.js — version mismatches cause silent failures.
+  -->
+  <script src="/socket.io/socket.io.js"></script>
+  <script src="/app.js"></script>
+</body>
 </html>
