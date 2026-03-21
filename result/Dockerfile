@@ -1,31 +1,5 @@
-# ════════════════════════════════════════════════════════════════════
-#  result/Dockerfile
-#
-#  PROBLEMS IN ORIGINAL:
-#  ─────────────────────
-#  FROM node:5.11.0-slim
-#    → Node 5 EOL June 2016. Has critical CVEs (OpenSSL). No async/await.
-#      Incompatible with every modern npm package.
-#
-#  RUN npm install -g nodemon
-#    → nodemon is a dev-only file-watcher. Shipping it to production
-#      adds 15 MB and a security surface for no benefit.
-#
-#  RUN npm config set registry http://registry.npmjs.org
-#    → Forces plain HTTP (not HTTPS) for the npm registry.
-#      This is a supply-chain security risk (MITM attacks on packages).
-#
-#  ADD package.json → RUN npm install → ADD . /app  (all one stage)
-#    → No layer caching: every source change re-runs npm install.
-#    → No multi-stage: devDependencies + npm cache ship to production.
-#
-#  RUN mv /app/node_modules /node_modules
-#    → Moves node_modules to root. Non-standard, confusing, fragile.
-#
-#  CMD ["node", "server.js"]  (kept — exec form is correct)
-# ════════════════════════════════════════════════════════════════════
 
-# ── Stage 1: BUILD ────────────────────────────────────────────────
+# ── Stage 1: BUILD 
 FROM node:22-slim AS build
 
 WORKDIR /app
