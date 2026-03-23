@@ -17,26 +17,37 @@
 #   — Casts 2 votes (one for each option) so both sides have data.
 #   — Calls `node tests.js` (Playwright) instead of phantomjs.
 
+
 set -e
 
 echo "Waiting for vote service on port 80..."
-while ! nc -z vote 80; do
+until node -e "
+const net = require('net');
+const s = net.createConnection(80, 'vote');
+s.on('connect', () => { s.destroy(); process.exit(0); });
+s.on('error', () => { s.destroy(); process.exit(1); });
+" 2>/dev/null; do
   sleep 1
 done
-echo "Vote service is up."
+echo "Vote service ready."
 
 echo "Waiting for result service on port 80..."
-while ! nc -z result 80; do
+until node -e "
+const net = require('net');
+const s = net.createConnection(80, 'result');
+s.on('connect', () => { s.destroy(); process.exit(0); });
+s.on('error', () => { s.destroy(); process.exit(1); });
+" 2>/dev/null; do
   sleep 1
 done
-echo "Result service is up."
+echo "Result service ready."
 
-# Cast 2 votes so the result page has something to display
+# Cast test votes
 curl -sf -X POST --data "vote=a" http://vote > /dev/null
 curl -sf -X POST --data "vote=b" http://vote > /dev/null
-echo "Votes cast."
+echo "Test votes cast."
 
-# Give the worker time to process votes into the database
+# Give worker time to process votes into the database
 sleep 5
 
 # Run the Playwright test
