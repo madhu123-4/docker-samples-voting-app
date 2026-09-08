@@ -1,0 +1,29 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: result
+  namespace: voting
+  labels:
+    app.kubernetes.io/name: result
+    app.kubernetes.io/instance: result
+spec:
+    replicas: 1
+    selector:
+      matchLabels:
+        app.kubernetes.io/name: result
+        app.kubernetes.io/instance: result
+    template:
+      metadata:
+        labels:
+          app.kubernetes.io/name: result
+          app.kubernetes.io/instance: result
+      spec:
+        containers:
+        - name: result
+          image: docker0.azurecr.io/result:v1
+          envFrom:
+            - configMapRef:
+                name: result-env
+          imagePullPolicy: IfNotPresent
+          ports:
+          - containerPort: 80  

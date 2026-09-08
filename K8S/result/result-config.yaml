@@ -1,0 +1,11 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: result-env
+  namespace: voting
+
+data:
+  REDIS: redis
+  REDIS_PORT: "6379"
+  POSTGRES: postgres
+  POSTGRES_PORT: "5432"

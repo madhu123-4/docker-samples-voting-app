@@ -1,0 +1,44 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: postgres
+  namespace: voting
+  labels:
+    app: db
+    group: db
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: postgres
+  template:
+    metadata:
+      labels:
+        app: postgres
+        type: db
+    spec:
+      volumes:                       
+        - name: "pg-data"
+          persistentVolumeClaim:
+            claimName: "postgres-pvc"
+      containers:
+        - name: db
+          image: docker0.azurecr.io/postgres:v1
+          imagePullPolicy: IfNotPresent
+          ports: 
+            - containerPort: 5432
+          envFrom:
+            - configMapRef:
+                name: postgres-config
+            - secretRef:
+                name: postgres-secret
+          env:
+          - name: PGDATA
+            value: "/var/lib/postgresql/data/pgdata"  
+          volumeMounts:                
+            - name: pg-data             
+              mountPath:  "/var/lib/postgresql/data" 
+          resources:
+            limits:
+              memory: "256Mi"
+              cpu: "500m"
