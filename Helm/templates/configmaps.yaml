@@ -1,0 +1,22 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ include "voting-app.fullname" . }}-vote
+  labels:
+    {{- include "voting-app.labels" . | nindent 4 }}
+data:
+  REDIS_HOST: {{ include "voting-app.redisServiceName" . | quote }}
+  REDIS_PORT: {{ .Values.redis.service.port | quote }}
+  OPTION_A: {{ .Values.vote.options.a | quote }}
+  OPTION_B: {{ .Values.vote.options.b | quote }}
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ include "voting-app.fullname" . }}-database-clients
+  labels:
+    {{- include "voting-app.labels" . | nindent 4 }}
+data:
+  REDIS_HOST: {{ include "voting-app.redisServiceName" . | quote }}
+  DB_HOST: {{ include "voting-app.postgresServiceName" . | quote }}
+  DB_NAME: {{ .Values.postgres.auth.database | quote }}
