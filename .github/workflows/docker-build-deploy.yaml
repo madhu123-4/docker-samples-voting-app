@@ -60,7 +60,7 @@ jobs:
   deploy:
     if: github.event_name == 'push'
     needs: build-images
-    uses: madhu123-4/Happy-Helming/.github/workflows/helm-deploy.yaml@main
+    uses: madhu123-4/Happy-Helming/.github/workflows/helm-deploy.yaml@Main
     with:
       environment: production
       chart_directory: ./Helm
