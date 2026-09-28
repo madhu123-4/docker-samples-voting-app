@@ -20,7 +20,7 @@ permissions:
 jobs:
   helm-test:
     if: github.event_name == 'pull_request'
-    uses: madhu123-4/Happy-Helming/.github/workflows/helm-test.yaml@Main
+    uses: madhu123-4/Happy-Helming/.github/workflows/helm-test.yaml@main
     with:
       chart_directory: ./Helm
       timeout: 10
@@ -60,7 +60,7 @@ jobs:
   deploy:
     if: github.event_name == 'push'
     needs: build-images
-    uses: madhu123-4/Happy-Helming/.github/workflows/helm-deploy.yaml@Main
+    uses: madhu123-4/Happy-Helming/.github/workflows/helm-deploy.yaml@main
     with:
       environment: production
       chart_directory: ./Helm
