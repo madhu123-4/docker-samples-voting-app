@@ -1,11 +1,11 @@
 global:
   imagePullSecrets: []
-  imageTag: "v1"
+  imageTag: v1
 
 vote:
   replicaCount: 3
   image:
-    repository: docker0.azurecr.io/vote
+    repository: ${{ vars.ACR_URL }}/vote
     pullPolicy: IfNotPresent
   service:
     type: ClusterIP
