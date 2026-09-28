@@ -20,7 +20,7 @@ permissions:
 jobs:
   helm-test:
     if: github.event_name == 'pull_request'
-    uses: madhu123-4/Happy-Helming/.github/workflows/helm-test.yaml@main
+    uses: madhu123-4/Happy-Helming/.github/workflows/helm-test.yaml@Main
     with:
       chart_directory: ./Helm
       timeout: 10
@@ -55,7 +55,7 @@ jobs:
         with:
           context: ${{ matrix.context }}
           push: true
-          tags: docker0.azurecr.io/${{ matrix.service }}:${{ github.ref_name }}
+          tags: ${{ vars.ACR_URL }}/${{ matrix.service }}:${{ github.ref_name }}
 
   deploy:
     if: github.event_name == 'push'
