@@ -1,0 +1,91 @@
+global:
+  imagePullSecrets: []
+  imageTag: v1
+
+vote:
+  replicaCount: 3
+  image:
+    repository: ${{ vars.ACR_URL }}/vote
+    pullPolicy: IfNotPresent
+  service:
+    type: ClusterIP
+    port: 80
+  options:
+    a: Cats
+    b: Dogs
+  resources:
+    requests:
+      cpu: 100m
+      memory: 128Mi
+    limits:
+      cpu: 250m
+      memory: 256Mi
+
+result:
+  replicaCount: 1
+  image:
+    repository: docker0.azurecr.io/result
+    pullPolicy: IfNotPresent
+  service:
+    type: ClusterIP
+    port: 80
+  resources:
+    requests:
+      cpu: 100m
+      memory: 128Mi
+    limits:
+      cpu: 250m
+      memory: 256Mi
+
+worker:
+  replicaCount: 1
+  image:
+    repository: docker0.azurecr.io/worker
+    tag: "v1"
+    pullPolicy: IfNotPresent
+  resources:
+    requests:
+      cpu: 100m
+      memory: 128Mi
+    limits:
+      cpu: 250m
+      memory: 256Mi
+
+redis:
+  image:
+    repository: docker0.azurecr.io/redis
+    tag: "v1"
+    pullPolicy: IfNotPresent
+  service:
+    port: 6379
+  resources:
+    requests:
+      cpu: 100m
+      memory: 128Mi
+    limits:
+      cpu: 250m
+      memory: 256Mi
+
+postgres:
+  image:
+    repository: docker0.azurecr.io/postgres
+    tag: "v1"
+    pullPolicy: IfNotPresent
+  service:
+    port: 5432
+  auth:
+    username: postgres
+    password: postgres # Development default. Override this outside local development.
+    database: postgres
+    existingSecret: ""
+  persistence:
+    enabled: true
+    size: 5Gi
+    storageClass: ""
+  resources:
+    requests:
+      cpu: 250m
+      memory: 256Mi
+    limits:
+      cpu: 500m
+      memory: 512Mi

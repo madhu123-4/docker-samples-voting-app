@@ -11,6 +11,11 @@ spec:
   selector:
     matchLabels:
       app: postgres
+  strategy:
+    type : rollingupdate
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 1
   template:
     metadata:
       labels:
@@ -39,6 +44,9 @@ spec:
             - name: pg-data             
               mountPath:  "/var/lib/postgresql/data" 
           resources:
+            requests:
+              memory: "128Mi"
+              cpu: "250m"
             limits:
               memory: "256Mi"
               cpu: "500m"

@@ -1,0 +1,70 @@
+name: Build images and deploy
+
+on:
+  pull_request:
+    paths:
+      - "Helm/**"
+      - "vote/**"
+      - "result/**"
+      - "worker/**"
+      - ".github/workflows/**"
+    types: [opened, synchronize, reopened]  
+  push:
+    tags:
+      - "v[0-9]*"
+
+permissions:
+  contents: read
+
+jobs:
+  helm-test:
+    if: github.event_name == 'pull_request'
+    uses: madhu123-4/Happy-Helming/.github/workflows/helm-test.yaml@main
+    with:
+      chart_directory: ./Helm
+      timeout: 10
+
+  build-images:
+    if: github.event_name == 'push'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+    strategy:
+      matrix:
+        include:
+          - service: vote
+            context: ./vote
+          - service: result
+            context: ./result
+          - service: worker
+            context: ./worker
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Log in to Docker Container Registry
+        uses: docker/login-action@v3
+        with:
+          registry: ${{vars.ACR_URL}}
+          username: ${{ secrets.ACR_USERNAME }}
+          password: ${{ secrets.ACR_PASSWORD }}
+
+      - name: Build and publish ${{ matrix.service }}
+        uses: docker/build-push-action@v6
+        with:
+          context: ${{ matrix.context }}
+          push: true
+          tags: ${{ vars.ACR_URL }}/${{ matrix.service }}:${{ github.ref_name }}
+
+  deploy:
+    if: github.event_name == 'push'
+    needs: build-images
+    uses: madhu123-4/Happy-Helming/.github/workflows/helm-deploy.yaml@main
+    with:
+      environment: Testing
+      chart_directory: ./Helm
+      release_name: voting-app
+      namespace: default
+      image_tag: ${{ github.ref_name }}
+      timeout: 10
+    secrets: inherit

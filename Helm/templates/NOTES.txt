@@ -1,0 +1,7 @@
+The voting application has been deployed.
+
+Access the vote UI:
+  kubectl -n {{ .Release.Namespace }} port-forward service/{{ include "voting-app.fullname" . }}-vote 8080:{{ .Values.vote.service.port }}
+
+Access the result UI:
+  kubectl -n {{ .Release.Namespace }} port-forward service/{{ include "voting-app.fullname" . }}-result 8081:{{ .Values.result.service.port }}
