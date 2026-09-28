@@ -62,7 +62,7 @@ jobs:
     needs: build-images
     uses: madhu123-4/Happy-Helming/.github/workflows/helm-deploy.yaml@main
     with:
-      environment: production
+      environment: Testing
       chart_directory: ./Helm
       release_name: voting-app
       namespace: voting
