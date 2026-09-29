@@ -5,7 +5,7 @@ global:
 vote:
   replicaCount: 3
   image:
-    repository: ${{ vars.ACR_URL }}/vote
+    repository: docker0.azurecr.io/vote
     pullPolicy: IfNotPresent
   service:
     type: ClusterIP
