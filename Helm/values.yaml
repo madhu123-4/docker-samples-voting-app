@@ -15,10 +15,10 @@ vote:
     b: Dogs
   resources:
     requests:
-      cpu: 100m
-      memory: 128Mi
+      cpu: 50m
+      memory: 50Mi
     limits:
-      cpu: 250m
+      cpu: 100m
       memory: 256Mi
 
 result:
@@ -31,10 +31,10 @@ result:
     port: 80
   resources:
     requests:
-      cpu: 100m
-      memory: 128Mi
+      cpu: 50m
+      memory: 50Mi
     limits:
-      cpu: 250m
+      cpu: 100m
       memory: 256Mi
 
 worker:
@@ -45,10 +45,10 @@ worker:
     pullPolicy: IfNotPresent
   resources:
     requests:
-      cpu: 100m
-      memory: 128Mi
+      cpu: 50m
+      memory: 50Mi
     limits:
-      cpu: 250m
+      cpu: 100m
       memory: 256Mi
 
 redis:
@@ -60,10 +60,10 @@ redis:
     port: 6379
   resources:
     requests:
-      cpu: 100m
-      memory: 128Mi
+      cpu: 50m
+      memory: 50Mi
     limits:
-      cpu: 250m
+      cpu: 100m
       memory: 256Mi
 
 postgres:
@@ -84,8 +84,8 @@ postgres:
     storageClass: ""
   resources:
     requests:
-      cpu: 250m
-      memory: 256Mi
+      cpu: 100m
+      memory: 50Mi
     limits:
-      cpu: 500m
-      memory: 512Mi
+      cpu: 200m
+      memory: 100Mi
