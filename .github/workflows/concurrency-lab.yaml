@@ -4,6 +4,7 @@ on:
   push:
     branches:
       - concurrency-lab
+      - concurrency-lab-2
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
