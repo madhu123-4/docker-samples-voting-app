@@ -1,0 +1,29 @@
+name: Concurrency Lab
+
+on:
+  push:
+    branches:
+      - concurrency-lab
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+
+  test:
+    runs-on: ubuntu-latest
+
+    steps:
+
+      - name: Show workflow information
+        run: |
+          echo "Workflow: ${{ github.workflow }}"
+          echo "Ref: ${{ github.ref }}"
+          echo "SHA: ${{ github.sha }}"
+
+      - name: Simulate long running job
+        run: |
+          echo "Job started"
+          sleep 120
+          echo "Job completed"
