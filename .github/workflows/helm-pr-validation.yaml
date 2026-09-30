@@ -18,6 +18,6 @@ jobs:
     uses: madhu123-4/Happy-Helming/.github/workflows/helm-test.yaml@main
     with:
       chart_directory: ./Helm
-      timeout: 10
+      timeout: 20
 
   
