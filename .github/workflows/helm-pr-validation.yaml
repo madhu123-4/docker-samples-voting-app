@@ -1,0 +1,23 @@
+name: Helm PR validation
+
+on:
+  pull_request:
+    paths:
+      - "Helm/**"
+      - "vote/**"
+      - "result/**"
+      - "worker/**"
+      - ".github/workflows/**"
+    types: [opened, synchronize, reopened]  
+
+permissions:
+  contents: read
+
+jobs:
+  helm-test:
+    uses: https://github.com/madhu123-4/Happy-Helming/blob/main/.github/workflows/helm-test.yaml@main
+    with:
+      chart_directory: ./Helm
+      timeout: 20
+
+  
