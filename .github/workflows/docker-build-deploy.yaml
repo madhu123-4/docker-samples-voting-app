@@ -1,4 +1,4 @@
-name: Build images and deploy
+name: Helm lint &Build images and deploy
 
 on:
   pull_request:
@@ -8,14 +8,9 @@ on:
       - "result/**"
       - "worker/**"
       - ".github/workflows/**"
-    types: [opened, synchronize, reopened]  
-  push:
-    tags:
-      - "v[0-9]*"
-
-permissions:
-  contents: read
-
+    types: [opened, synchronize, reopened] 
+    branches:
+      - master
 jobs:
   helm-test:
     if: github.event_name == 'pull_request'
@@ -25,7 +20,7 @@ jobs:
       timeout: 10
 
   build-images:
-    if: github.event_name == 'push'
+    if: github.event_name == 'merge'
     runs-on: ubuntu-latest
     permissions:
       contents: read
