@@ -4,10 +4,10 @@ on:
    pull_request:
      types: [opened, synchronize, reopened, edited]
      branches:
-       - main
+       - master
 jobs:
    automatic-tagging:
-      uses: madhu123-4/Happy-Helming/.github/workflows/automatic-tagging.yaml@main
+      uses: madhu123-4/Happy-Helming/.github/workflows/automatic-tagging.yaml@master
 
 
 
