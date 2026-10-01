@@ -15,7 +15,7 @@ permissions:
 
 jobs:
   helm-test:
-    uses: https://github.com/madhu123-4/Happy-Helming/blob/main/.github/workflows/helm-test.yaml@main
+    uses: madhu123-4/Happy-Helming/.github/workflows/helm-test.yaml@main
     with:
       chart_directory: ./Helm
       timeout: 20
