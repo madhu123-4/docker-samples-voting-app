@@ -7,7 +7,7 @@ on:
        - master
 jobs:
    automatic-tagging:
-      uses: madhu123-4/Happy-Helming/.github/workflows/automatic-tagging.yaml@master
+      uses: madhu123-4/Happy-Helming/.github/workflows/automatic-tagging.yaml@main
 
 
 
