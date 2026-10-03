@@ -7,9 +7,8 @@ on:
       - "result/**"
       - "worker/**"
       - ".github/workflows/**"
-    types: [opened, synchronize, reopened] 
     branches:
-      - master
+      - pacth
 jobs:
   helm-test:
     if: github.event_name == 'push'
