@@ -8,7 +8,7 @@ on:
       - "worker/**"
       - ".github/workflows/**"
     branches:
-      - pacth
+      - patch
 jobs:
   helm-test:
     if: github.event_name == 'push'
