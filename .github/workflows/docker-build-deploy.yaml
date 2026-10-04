@@ -3,7 +3,6 @@ name: Helm lint and Build images and deploy
 on:
   push:
     paths:
-      - "vote/**"
       - "result/**"
       - "worker/**"
       - ".github/workflows/**"
