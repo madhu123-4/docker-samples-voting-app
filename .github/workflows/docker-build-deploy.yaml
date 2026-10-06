@@ -6,7 +6,6 @@ on:
       - "worker/**"
       - ".github/workflows/**"
       - "Helm/**"
-      - "vote/**"
     branches:
       - patch
 jobs:
