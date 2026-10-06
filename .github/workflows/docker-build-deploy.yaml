@@ -11,7 +11,6 @@ on:
 jobs:
   helm-test:
     if: github.event_name == 'push'
-    runs-on: windows-latest
     uses: madhu123-4/Happy-Helming/.github/workflows/helm-test.yaml@v1
     with:
       chart_directory: ./Helm
@@ -19,7 +18,7 @@ jobs:
 
   build-images:
     if: github.event_name == 'merge'
-    runs-on: ubuntu
+    runs-on: self-hosted
     permissions:
       contents: read
       packages: write
