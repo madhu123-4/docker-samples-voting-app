@@ -12,7 +12,8 @@ jobs:
   helm-test:
     if: github.event_name == 'push'
     uses: madhu123-4/Happy-Helming/.github/workflows/helm-test.yaml@main
-  
+    with:
+      chart_directory: ./Helm
 
   build-images:
     if: github.event_name == 'merge'
