@@ -1,32 +1,25 @@
-name: Build images and deploy
+name: Helm lint and Build images and deploy
 
 on:
-  pull_request:
+  push:
     paths:
-      - "Helm/**"
-      - "vote/**"
-      - "result/**"
       - "worker/**"
       - ".github/workflows/**"
-    types: [opened, synchronize, reopened]  
-  push:
-    tags:
-      - "v[0-9]*"
-
-permissions:
-  contents: read
-
+      - "Helm/**"
+    branches:
+      - patch
 jobs:
   helm-test:
-    if: github.event_name == 'pull_request'
-    uses: madhu123-4/Happy-Helming/.github/workflows/helm-test.yaml@main
+    if: github.event_name == 'push'
+    runs-on: windows-latest
+    uses: madhu123-4/Happy-Helming/.github/workflows/helm-test.yaml@v1
     with:
       chart_directory: ./Helm
       timeout: 10
 
   build-images:
-    if: github.event_name == 'push'
-    runs-on: ubuntu-latest
+    if: github.event_name == 'merge'
+    runs-on: ubuntu
     permissions:
       contents: read
       packages: write
